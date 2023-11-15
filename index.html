@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <script src="./jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div>
+        <textarea id="text" name="text" rows="20" cols="60">
+半自動ルビ振り変換機
+変換例：
+漢字・カタカナ＋丸括弧(カタカナ・ひらがな)の場合：
+　山田太郎(やまだたろう)
+漢字・カタカナ以外＋丸括弧の場合(先頭に「|」を入れる)：
+　|Yamada Tarou(やまだたろう)
+    </textarea>
+        <input type="button" id="button1" value="変換" />
+    </div>
+    <div>
+        <textarea id="result" name="result" rows="20" cols="60">
+        </textarea>
+    </div>
+
+    <div> プレビュー </div>
+    <div>
+        <span id="span1"></span>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $("#button1").click(function () {
+            const str1 = $("#text").val()
+            $("#span1").html(autoruby(str1).replace(/\n/g, "<br>"))
+            $("#result").html(autoruby(str1))
+        });
+
+        // https://qiita.com/8amjp/items/d7c46d9dee0da4d530ef
+        function autoruby(text) {
+            return text
+                /* 半角または全角の縦棒以降の文字をベーステキスト、括弧内の文字をルビテキストとします。 */
+                .replace(/[\|｜](.+?)《(.+?)》/g, '<ruby>$1<rt>$2</rt></ruby>')
+                .replace(/[\|｜](.+?)（(.+?)）/g, '<ruby>$1<rt>$2</rt></ruby>')
+                .replace(/[\|｜](.+?)\((.+?)\)/g, '<ruby>$1<rt>$2</rt></ruby>')
+                /* 漢字の連続の後に括弧が存在した場合、一連の漢字をベーステキスト、括弧内の文字をルビテキストとします。 */
+                .replace(/([一-龠々]+)《(.+?)》/g, '<ruby>$1<rt>$2</rt></ruby>')
+                /* ただし丸括弧内の文字はひらがなかカタカナのみを指定できます。 */
+                .replace(/([一-龠々ァ-ヶ]+)（([ぁ-んァ-ヶ\s]+?)）/g, '<ruby>$1<rt>$2</rt></ruby>')
+                .replace(/([一-龠々ァ-ヶ]+)\(([ぁ-んァ-ヶ\s]+?)\)/g, '<ruby>$1<rt>$2</rt></ruby>')
+                /* 括弧を括弧のまま表示したい場合は、括弧の直前に縦棒を入力します。 */
+                .replace(/[\|｜]《(.+?)》/g, '《$1》')
+                .replace(/[\|｜]（(.+?)）/g, '（$1）')
+                .replace(/[\|｜]\((.+?)\)/g, '($1)')
+        }
+    </script>
+</body>
+
+</html>
